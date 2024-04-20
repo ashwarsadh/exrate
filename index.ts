@@ -1,6 +1,11 @@
 import axios from "axios";
 
-async function getExchangeRate(currency: string): Promise<number | undefined> {
+interface ExchangeRate {
+  currency: string;
+  rate: number;
+}
+
+async function getExchangeRate(currency: string): Promise<ExchangeRate | null> {
   const url = `https://eximin.net/rates.aspx?type=custom`;
 
   try {
@@ -14,23 +19,23 @@ async function getExchangeRate(currency: string): Promise<number | undefined> {
     const row = rows.find((row) =>
       row.includes(`<strong>${currency}</strong>`),
     );
-    console.log(row);
 
     if (row) {
       // Extract export rate value from the row
       const regex = /<td>\s*(\d+\.\d+)\s*<\/td>\s*<td>\s*(\d+\.\d+)\s*<\/td>/;
       const match = regex.exec(row);
-      console.log(match);
+
       if (match && match.length >= 3) {
         // Extract the second rate value (export rate)
-        return parseFloat(match[2]);
+        const rate = parseFloat(match[2]);
+        return { currency: currency === "Euro" ? "EUR" : "USD", rate };
       }
     }
   } catch (error) {
     console.error("Error fetching exchange rate:", error);
   }
 
-  return undefined;
+  return null;
 }
 
 // Example usage
@@ -38,15 +43,19 @@ async function getExchangeRate(currency: string): Promise<number | undefined> {
   const euroRate = await getExchangeRate("Euro");
   const usdRate = await getExchangeRate("U. S. Dollar");
 
-  if (euroRate !== undefined) {
-    console.log(`Euro export rate: ${euroRate}`);
+  const exchangeRates = [];
+
+  if (euroRate) {
+    exchangeRates.push(euroRate);
   } else {
     console.log("Euro export rate not found");
   }
 
-  if (usdRate !== undefined) {
-    console.log(`USD export rate: ${usdRate}`);
+  if (usdRate) {
+    exchangeRates.push(usdRate);
   } else {
     console.log("USD export rate not found");
   }
+
+  console.log(JSON.stringify(exchangeRates));
 })();

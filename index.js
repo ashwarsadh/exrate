@@ -39,7 +39,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = require("axios");
 function getExchangeRate(currency) {
     return __awaiter(this, void 0, void 0, function () {
-        var url, response, data, rows, row, regex, match, error_1;
+        var url, response, data, rows, row, regex, match, rate, error_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -55,14 +55,12 @@ function getExchangeRate(currency) {
                     row = rows.find(function (row) {
                         return row.includes("<strong>".concat(currency, "</strong>"));
                     });
-                    console.log(row);
                     if (row) {
                         regex = /<td>\s*(\d+\.\d+)\s*<\/td>\s*<td>\s*(\d+\.\d+)\s*<\/td>/;
                         match = regex.exec(row);
-                        console.log(match);
                         if (match && match.length >= 3) {
-                            // Extract the second rate value (export rate)
-                            return [2 /*return*/, parseFloat(match[2])];
+                            rate = parseFloat(match[2]);
+                            return [2 /*return*/, { currency: currency === "Euro" ? "EUR" : "USD", rate: rate }];
                         }
                     }
                     return [3 /*break*/, 4];
@@ -70,14 +68,14 @@ function getExchangeRate(currency) {
                     error_1 = _a.sent();
                     console.error("Error fetching exchange rate:", error_1);
                     return [3 /*break*/, 4];
-                case 4: return [2 /*return*/, undefined];
+                case 4: return [2 /*return*/, null];
             }
         });
     });
 }
 // Example usage
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var euroRate, usdRate;
+    var euroRate, usdRate, exchangeRates;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, getExchangeRate("Euro")];
@@ -86,18 +84,20 @@ function getExchangeRate(currency) {
                 return [4 /*yield*/, getExchangeRate("U. S. Dollar")];
             case 2:
                 usdRate = _a.sent();
-                if (euroRate !== undefined) {
-                    console.log("Euro export rate: ".concat(euroRate));
+                exchangeRates = [];
+                if (euroRate) {
+                    exchangeRates.push(euroRate);
                 }
                 else {
                     console.log("Euro export rate not found");
                 }
-                if (usdRate !== undefined) {
-                    console.log("USD export rate: ".concat(usdRate));
+                if (usdRate) {
+                    exchangeRates.push(usdRate);
                 }
                 else {
                     console.log("USD export rate not found");
                 }
+                console.log(JSON.stringify(exchangeRates));
                 return [2 /*return*/];
         }
     });
