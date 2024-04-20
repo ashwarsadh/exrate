@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,20 +35,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
+var axios_1 = require("axios");
 function getExchangeRate(currency) {
     return __awaiter(this, void 0, void 0, function () {
-        var url, xhr, data, rows, row, regex, match, rate;
+        var url, response, data, rows, row, regex, match, rate, error_1;
         return __generator(this, function (_a) {
-            url = "https://eximin.net/rates.aspx?type=custom";
-            try {
-                xhr = new XMLHttpRequest();
-                xhr.open("GET", url, false); // Synchronous request
-                xhr.send();
-                if (xhr.status === 200) {
-                    data = xhr.responseText;
+            switch (_a.label) {
+                case 0:
+                    url = "https://eximin.net/rates.aspx?type=custom";
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, axios_1.default.get(url)];
+                case 2:
+                    response = _a.sent();
+                    data = response.data;
                     rows = data.split("<tr>");
-                    row = rows.find(function (row) { return row.includes("<strong>".concat(currency, "</strong>")); });
+                    row = rows.find(function (row) {
+                        return row.includes("<strong>".concat(currency, "</strong>"));
+                    });
                     if (row) {
                         regex = /<td>\s*(\d+\.\d+)\s*<\/td>\s*<td>\s*(\d+\.\d+)\s*<\/td>/;
                         match = regex.exec(row);
@@ -56,20 +63,18 @@ function getExchangeRate(currency) {
                             return [2 /*return*/, { currency: currency === "Euro" ? "EUR" : "USD", rate: rate }];
                         }
                     }
-                }
-                else {
-                    throw new Error("Failed to fetch exchange rate. Status: ".concat(xhr.status));
-                }
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_1 = _a.sent();
+                    console.error("Error fetching exchange rate:", error_1);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/, null];
             }
-            catch (error) {
-                console.error("Error fetching exchange rate:", error);
-            }
-            return [2 /*return*/, null];
         });
     });
 }
 // Example usage
-(function () { return __awaiter(_this, void 0, void 0, function () {
+(function () { return __awaiter(void 0, void 0, void 0, function () {
     var euroRate, usdRate, exchangeRates;
     return __generator(this, function (_a) {
         switch (_a.label) {
